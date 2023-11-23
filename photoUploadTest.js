@@ -1,5 +1,5 @@
 LAMBDA_URL =
-  "https://gnizpce5eg.execute-api.us-east-1.amazonaws.com/default/sls-py-dem3-dev-hello";
+  "https://ctdix4arbaiudxx4vi4muepthq0lanqd.lambda-url.us-east-1.on.aws/";
 
 const video = document.getElementById("video");
 
@@ -12,35 +12,37 @@ function startVideo() {
 }
 
 async function capture() {
-  // var canvas = document.getElementById('canvas');
-  // var video = document.getElementById('video');
-  // canvas.width = video.videoWidth;
-  // canvas.height = video.videoHeight;
-  // canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-  // canvas.toBlob() = (blob) => {
-  //   const img = new Image();
-  //   img.src = window.URL.createObjectUrl(blob);
-  // };
   var canvas = document.createElement("canvas");
   var ctx = canvas.getContext("2d");
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const canvasURLObj = { image: canvas.toDataURL("image/jpg") };
+  const canvasURLObj = canvas.toDataURL("image/png");
+  let img64 = "";
 
   try {
     const ores = await fetch(LAMBDA_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "text/plain",
       },
-      body: JSON.stringify(canvasURLObj),
+      body: canvasURLObj,
     });
 
-    console.log("alu :: ", ores);
+    const res = await ores.json();
+    img64 = res.input.body;
+
+    console.log("alu :: ", img64);
   } catch (e) {
     console.log("potol :: ", e);
   }
+
+  const resCanvas = document.getElementById("resCanvas");
+  const ctz = resCanvas.getContext("2d");
+
+  let img = new Image();
+  img.onload = () => {
+    ctz.drawImage(img, 0, 0);
+  };
+  img.src = img64;
 }
 
 startVideo();
-
-// video.addEventListener("play", () => {});
