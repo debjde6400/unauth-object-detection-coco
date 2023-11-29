@@ -1,5 +1,4 @@
-LAMBDA_URL =
-  "https://ctdix4arbaiudxx4vi4muepthq0lanqd.lambda-url.us-east-1.on.aws/";
+LAMBDA_URL = "http://localhost:5000/detect-unauth-objects";
 
 const video = document.getElementById("video");
 
@@ -15,34 +14,25 @@ async function capture() {
   var canvas = document.createElement("canvas");
   var ctx = canvas.getContext("2d");
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const canvasURLObj = canvas.toDataURL("image/png");
+  const canvasURLObj = { image: canvas.toDataURL("image/png") };
   let img64 = "";
 
   try {
     const ores = await fetch(LAMBDA_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "text/plain",
+        "Content-Type": "application/json",
       },
-      body: canvasURLObj,
+      body: JSON.stringify(canvasURLObj),
     });
 
     const res = await ores.json();
-    img64 = res.input.body;
+    img64 = res;
 
     console.log("alu :: ", img64);
   } catch (e) {
     console.log("potol :: ", e);
   }
-
-  const resCanvas = document.getElementById("resCanvas");
-  const ctz = resCanvas.getContext("2d");
-
-  let img = new Image();
-  img.onload = () => {
-    ctz.drawImage(img, 0, 0);
-  };
-  img.src = img64;
 }
 
 startVideo();
